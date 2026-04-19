@@ -52,21 +52,23 @@ Restart Claude Code. The three tools appear under the `cortex-yt-transcripts` na
 
 1. Open [claude.ai](https://claude.ai) → avatar (bottom-left) → **Settings** → **Connectors**.
 2. Click **Add custom connector**.
-3. Fill in:
+3. Fill in the basic fields and click **Add**:
 
    | Field | Value |
    |---|---|
    | Name | `Cortex YT transcripts` |
-   | URL | `https://yt-transcript-api.alphacortex.dev/mcp/` ← **trailing slash required** |
-   | Authentication | Bearer token |
-   | Token | your `CORTEX_YT_API_KEY` |
+   | Remote MCP server URL | `https://yt-transcript-api.alphacortex.dev/mcp/` ← **trailing slash required** |
 
-4. **Save**, then toggle the connector **on** for the chats/projects where you want it.
-5. Start a new chat — three tools show up.
+   Leave the Advanced settings (OAuth Client ID / Secret) blank.
+4. claude.ai opens a consent page titled **"Connect your account"**. Paste your invitation key into the textbox and click **Connect**.
+5. You're redirected back to claude.ai — the connector shows **Connected**.
+6. Toggle it **on** for the chats/projects where you want it. Start a new chat — three tools show up.
+
+> The consent page is the only moment you paste your invitation key. claude.ai handles the token from there on.
 
 ### 3. Claude desktop app
 
-Same UI as claude.ai web. Settings → Connectors → Add custom connector → paste URL + token.
+Customize → Connectors → Add ( + ) → Custom connector → paste the URL only, then complete the same consent page as the web flow.
 
 Connectors you add in one place (web or desktop) sync to the other on the same account.
 
