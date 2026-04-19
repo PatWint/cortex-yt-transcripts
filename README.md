@@ -15,7 +15,7 @@ Three tools, all read-only:
 | Tool | What it does |
 |---|---|
 | `fetch_transcript(video_id)` | Full transcript + metadata for one YT video (by 11-char ID). |
-| `search_transcripts(query, channel?, limit?)` | Substring search across transcript bodies, optionally filtered to one channel. |
+| `list_transcripts(query?, channel?, sort?, order?, date_from?, date_to?, limit?)` | List / filter / sort transcripts. Defaults return the 20 newest by publish date across all channels. Pass a `query` for text search, `channel` to restrict, `sort` / `order` to reorder, or `date_from` / `date_to` to window. |
 | `list_channels()` | Every channel in the corpus with its transcript count. |
 
 ---
@@ -50,7 +50,7 @@ Restart Claude Code. The three tools appear under the `cortex-yt-transcripts` na
 
 ### 2. claude.ai (web)
 
-1. Open [claude.ai](https://claude.ai) → avatar (top-right) → **Settings** → **Connectors**.
+1. Open [claude.ai](https://claude.ai) → avatar (bottom-left) → **Settings** → **Connectors**.
 2. Click **Add custom connector**.
 3. Fill in:
 
