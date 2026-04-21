@@ -10,13 +10,18 @@ It's an MCP server hosted at `https://yt-transcript-api.alphacortex.dev/mcp/`. O
 
 ## What Claude gets
 
-Three tools, all read-only:
+Six tools, all read-only:
 
 | Tool | What it does |
 |---|---|
 | `fetch_transcript(video_id)` | Full transcript + metadata for one YT video (by 11-char ID). |
-| `list_transcripts(query?, channel?, sort?, order?, date_from?, date_to?, limit?)` | List / filter / sort transcripts. Defaults return the 20 newest by publish date across all channels. Pass a `query` for text search, `channel` to restrict, `sort` / `order` to reorder, or `date_from` / `date_to` to window. |
+| `list_transcripts(query?, channel?, category?, keyword?, topic?, sort?, order?, date_from?, date_to?, limit?)` | List / filter / sort transcripts. Defaults return the 20 newest by publish date across all channels. Filters: `query` (case-insensitive substring over title / channel / body), `channel` (exact label), `category` (exact label), `keyword` / `topic` (case-insensitive substring over the respective tag array). `sort` accepts `published_at` (default) or `channel`; invalid values coerce. `order`: `desc` (default) or `asc`. `date_from` / `date_to`: inclusive YYYY-MM-DD bounds on publish date. |
 | `list_channels()` | Every channel in the corpus with its transcript count. |
+| `list_top_categories(limit=20)` | Most common categories with counts — call before filtering with `category`. |
+| `list_top_keywords(limit=100)` | Most common keywords (lowercased, deduped) with counts — call before filtering with `keyword` to discover the exact spellings/variants that exist in the corpus. |
+| `list_top_topics(limit=50)` | Most common topic entities — returns both a readable label (e.g. `"Tesla, Inc."`) and the canonical Wikipedia URL. Call before filtering with `topic`. |
+
+**Discovery-first workflow:** for any "what does the corpus say about X" question, Claude should call `list_top_keywords` or `list_top_topics` first to see what's actually populated, then narrow with the filter on `list_transcripts`. The tool docstrings nudge it this way automatically.
 
 ---
 
@@ -46,7 +51,7 @@ claude mcp add cortex-yt-transcripts \
   -- https://yt-transcript-api.alphacortex.dev/mcp/
 ```
 
-Restart Claude Code. The three tools appear under the `cortex-yt-transcripts` namespace.
+Restart Claude Code. The six tools appear under the `cortex-yt-transcripts` namespace.
 
 ### 2. claude.ai (web)
 
@@ -62,7 +67,7 @@ Restart Claude Code. The three tools appear under the `cortex-yt-transcripts` na
    Leave the Advanced settings (OAuth Client ID / Secret) blank.
 4. claude.ai opens a consent page titled **"Connect your account"**. Paste your invitation key into the textbox and click **Connect**.
 5. You're redirected back to claude.ai — the connector shows **Connected**.
-6. Toggle it **on** for the chats/projects where you want it. Start a new chat — three tools show up.
+6. Toggle it **on** for the chats/projects where you want it. Start a new chat — six tools show up.
 
 > The consent page is the only moment you paste your invitation key. claude.ai handles the token from there on.
 
@@ -142,6 +147,18 @@ If you see an authentication error, re-check the token value. If you see "tool n
 
 ---
 
+## How auth works
+
+Your invitation key is the only credential you'll ever need — one key unlocks every Claude surface (Claude Code, claude.ai web, desktop, mobile, the Messages API, and any MCP-aware client).
+
+On claude.ai / desktop / mobile, the first time you add the connector you're sent to a short consent page hosted at `yt-transcript-api.alphacortex.dev`. You paste your key once, click **Connect**, and claude.ai exchanges it for a signed session token that it stores for you. Every subsequent tool call from Claude rides on that token automatically — you won't be asked for the key again on that surface unless the developer revokes it.
+
+On Claude Code, MCP-aware clients, and the Messages API, you supply the key directly in a header and skip the consent page entirely.
+
+If the developer revokes your key, every surface stops working within about a minute. Rotating your key just means pasting the new one on the consent page (or updating the header) once per surface.
+
+---
+
 ## Troubleshooting
 
 **Trailing slash matters.** The URL must end in `/mcp/` (not `/mcp`). Without it, the server issues a redirect that drops the `Authorization` header, producing a spurious 401.
@@ -151,4 +168,18 @@ If you see an authentication error, re-check the token value. If you see "tool n
 **"Tool not found" in Messages API.** Make sure you included the beta header `anthropic-beta: mcp-client-2025-11-20` and an `mcp_toolset` entry in `tools` referencing the same `name` as the server.
 
 **Slow first response.** The server sleeps after idle periods, so the first call in a fresh conversation can take a few seconds. Subsequent calls are fast.
+
+---
+
+## Contribute to the corpus
+
+New transcripts land in the corpus via the YT Transcript Downloader Chrome extension — the same tool referenced at the top of this README. If you'd like to help grow the library:
+
+1. Download the extension: [`yt_transcript_downloader.zip`](./yt_transcript_downloader.zip).
+2. Unzip it.
+3. In Chrome, open `chrome://extensions` → enable **Developer mode** (top-right) → **Load unpacked** → pick the unzipped folder.
+4. Click the extension icon → **Settings** → paste the same `CORTEX_YT_API_KEY` the developer gave you. (Same key as the MCP connector — one key unlocks both surfaces.)
+5. Set **API URL** to `https://yt-transcript-api.alphacortex.dev`.
+
+From there: visit any YT channel page, click the extension, add the channel to your queue. The extension captures each video's transcript and pushes it to the shared corpus automatically.
 
