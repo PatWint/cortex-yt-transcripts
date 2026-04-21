@@ -1,6 +1,6 @@
 # Cortex YT transcripts — Claude connector
 
-This connector gives Claude access to the Cortex YT transcript corpus — a private library of investing-podcast transcripts captured via the YT Transcript Downloader Chrome extension.
+This connector gives Claude access to the Cortex YT transcript corpus — a private library of investing-podcast transcripts captured via the [YT Transcript Downloader Chrome extension](./yt_transcript_downloader.zip).
 
 It's an MCP server hosted at `https://yt-transcript-api.alphacortex.dev/mcp/`. Once connected, Claude can search the corpus, pull a full transcript for one video, or list what channels are available — directly from any conversation.
 
